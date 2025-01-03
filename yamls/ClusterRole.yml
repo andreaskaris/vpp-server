@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: system:openshift:scc:vpp-server
+rules:
+- apiGroups:
+  - security.openshift.io
+  resourceNames:
+  - vpp-server
+  resources:
+  - securitycontextconstraints
+  verbs:
+  - use

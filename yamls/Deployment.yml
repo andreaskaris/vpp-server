@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vpp-server
+spec:
+  selector:
+    matchLabels:
+      app: vpp-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: vpp-server
+      annotations:
+        k8s.v1.cni.cncf.io/networks: |
+          [
+            {
+              "name": "macvlan0",
+              "interface": "macvlan0"
+            }
+          ]
+    spec:
+      initContainers:
+      - name: init-vpp-server
+        image: "$CONTAINER_IMAGE"
+        command:
+          - /init.sh
+        env:
+          - name: HOST_INTERFACE
+            value: "macvlan0"
+          - name: VLAN_ID
+            value: |
+              $VLAN_ID
+          - name: IP_ADDRESS
+            value: |
+              $IP_ADDRESS
+        volumeMounts:
+        - mountPath: /conf
+          name: conf
+        - mountPath: /www
+          name: www
+        securityContext:
+          runAsUser: 10000
+          runAsGroup: 10000
+          runAsNonRoot: true
+      containers:
+      - name: vpp-server
+        image: "$CONTAINER_IMAGE"
+        command:
+          - vpp
+          - "-c"
+          - "/conf/vpp.conf"
+        volumeMounts:
+        - mountPath: /run/user
+          name: run-user
+        - mountPath: /run/vpp
+          name: run-vpp
+        - mountPath: /conf
+          name: conf
+        - mountPath: /www
+          name: www
+        securityContext:
+          runAsUser: 10000
+          runAsGroup: 10000
+          runAsNonRoot: true
+          capabilities:
+            add:
+            - NET_ADMIN
+            - NET_RAW
+            - IPC_LOCK
+            - NET_BROADCAST
+            drop:
+            - ALL
+      volumes:
+      - name: conf
+        emptyDir:
+          sizeLimit: 500Mi
+      - name: www
+        emptyDir:
+          sizeLimit: 500Mi
+      - name: run-user
+        emptyDir:
+          sizeLimit: 500Mi
+      - name: run-vpp
+        emptyDir:
+          sizeLimit: 500Mi
