@@ -112,6 +112,14 @@ spec:
     }
 ```
 
+The worker node's interface is not using promiscuous mode:
+
+```
+[root@worker01 ~]# ip -d --json link ls dev eno8403np1 | jq '.[0].promiscuity'
+0
+```
+
+
 Connect to the pod and check the pod's networking. You can see here that the macvlan0 interface was created inside the
 pod. (The IPv6 address was configured via auto-configuration and is not part of anything that we configured)
 
@@ -139,7 +147,7 @@ sh-5.2$ ip a
        valid_lft forever preferred_lft forever
 ```
 
-Note that the `macvlan0` interface is not using promiscuous mode:
+Note that the `macvlan0` interface is also not using promiscuous mode:
 
 ```
 $ ip -d link ls dev macvlan0
@@ -148,14 +156,7 @@ $ ip -d link ls dev macvlan0
     macvlan mode bridge bcqueuelen 1000 usedbcqueuelen 1000 numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535 tso_max_size 65536 tso_max_segs 65535 gro_max_size 65536
 ```
 
-And neither does the interface on the host:
-
-```
-[root@worker01 ~]# ip -d --json link ls dev eno8403np1 | jq '.[0].promiscuity'
-0
-```
-
-Next, connect to the VPP application:
+Next, connect to the VPP application (run this inside the pod):
 
 ```
 sh-5.2$ vppctl -s /run/vpp/cli-vpp1.sock
@@ -167,7 +168,7 @@ sh-5.2$ vppctl -s /run/vpp/cli-vpp1.sock
 vpp# 
 ```
 
-And list the configutation:
+And list the configuration:
 
 ```
 vpp# show hardware-interfaces 
