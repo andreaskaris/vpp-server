@@ -50,7 +50,7 @@ the pod's ServiceAccount to it.
 This POC can be deployed as follows:
 
 ```
-make deploy MACVLAN_MASTER=<HOST MASTER INTERFACE> VLAN_ID=<VLAN ID ON TOP OF MACVLAN> IP_ADDRESS=<IP ADDRESS IN CONTAINER>
+make deploy MACVLAN_MASTER=<HOST MASTER INTERFACE> VLAN_ID=<VLAN ID ON TOP OF MACVLAN> IP_ADDRESS=<IP ADDRESS + SUBNET MASK IN CONTAINER>
 ```
 
 Where the 3 variables are as follows:
@@ -60,7 +60,7 @@ Where the 3 variables are as follows:
                   Configure by the NetworkAttachmentDefinition. The MACVLAN interface is passed into the container as
                   `macvlan0`.
 * VLAN_ID: The VLAN ID that the VPP application is using on top of the MACVLAN interface.
-* IP_ADDRESS: The IP address that the VPP application assigns to the VLAN.
+* IP_ADDRESS: The IP address that the VPP application assigns to the VLAN, including subnet mask, e.g. 192.0.2.10/24
 ```
 
 In order to see all generated YAML files, you can run:
